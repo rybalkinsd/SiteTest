@@ -2,13 +2,17 @@ import logging
 from selenium import webdriver
 import re
 import sys
+
 # url could be google.com/bla-bla/ref=http://new.sportmaster...
-
-
 target_web_app = re.compile('^htt(p|ps)://new\\.sportmaster\\.ru')
 
 # continue param and login/logout
-restrictions = ["login", "logout", "continue="]
+restrictions = [
+    re.compile('.*login.*'),
+    re.compile('.*logout.*'),
+    re.compile('.*continue=.*'),
+    re.compile('.*facetValues.*facetValues.*')
+]
 
 #root url
 main_url = "http://new.sportmaster.ru"
@@ -36,6 +40,7 @@ def main():
 
     while len(url_queue):
         logger.info("Url in story: " + str(len(url_story)) + ". Url in queue: " + str(len(url_queue)))
+
         url = url_queue.pop()
         find_urls(url, browser, url_story, url_queue)
         save_urls(url_story)
@@ -71,7 +76,7 @@ def find_urls(root_url, browser, url_story, url_queue):
 
 def is_not_restricted(target, restrictions):
     for restriction in restrictions:
-        if restriction in target: 
+        if restriction.match(target):
             return False
 
     return True
