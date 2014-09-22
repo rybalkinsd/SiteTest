@@ -4,6 +4,8 @@ import re
 import sys
 
 # url could be google.com/bla-bla/ref=http://new.sportmaster...
+from ru.sportmaster.lookup.TimeoutDecorator import timeout
+
 target_web_app = re.compile('^htt(p|ps)://new\\.sportmaster\\.ru')
 
 # continue param and login/logout
@@ -32,7 +34,7 @@ def main():
         browser = webdriver.Chrome()
         browser.get(main_url)
     except Exception:
-        logger.error("Browser initialize error " + main_url)
+        logger.error("Browser initialize error: " + main_url)
         return
 
     url_story = []
@@ -42,22 +44,25 @@ def main():
         logger.info("Url in story: " + str(len(url_story)) + ". Url in queue: " + str(len(url_queue)))
 
         url = url_queue.pop()
-        find_urls(url, browser, url_story, url_queue)
+        try:
+            find_urls(url, browser, url_story, url_queue)
+        except:
+            logger.error("Time limit processing url: " + url)
+
         save_urls(url_story)
 
     browser.close()
 
+    logger.info("finish")
 
-    logger.log("finish")
 
-
+@timeout(2)
 def find_urls(root_url, browser, url_story, url_queue):
     try:
         browser.get(root_url)
         list_tags = browser.find_elements_by_tag_name('a')
     except:
-        logger.error("Url opening timeout")
-        return
+        logger.error("Can't open url: " + root_url)
 
     try:
         leaf_urls = [item.get_attribute('href') for item in list_tags]
