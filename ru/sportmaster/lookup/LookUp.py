@@ -3,7 +3,7 @@ from selenium import webdriver
 import re
 
 from LoggerUtils import getLogger
-from Restrictions import is_not_restricted
+from restrictions import is_not_restricted
 
 from TimelimitWindows import call_with_time_limit
 from ErrorFinder import match_errors
