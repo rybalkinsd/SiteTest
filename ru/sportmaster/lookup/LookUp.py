@@ -1,32 +1,18 @@
-import logging
 from selenium import webdriver
 import re
-import sys
+
+from ru.sportmaster.lookup.TimeoutDecorator import timeout
+from ru.sportmaster.lookup.Restrictions import is_not_restricted
+from ru.sportmaster.lookup.LoggerUtils import getLogger
+
 
 # url could be google.com/bla-bla/ref=http://new.sportmaster...
-from ru.sportmaster.lookup.TimeoutDecorator import timeout
-
 target_web_app = re.compile('^htt(p|ps)://new\\.sportmaster\\.ru')
-
-# continue param and login/logout
-restrictions = [
-    re.compile('.*login.*'),
-    re.compile('.*logout.*'),
-    re.compile('.*continue=.*'),
-    re.compile('.*facetValues.*facetValues.*')
-]
 
 #root url
 main_url = "http://new.sportmaster.ru"
 
-#logger init
-logger = logging.getLogger('SiteTest')
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = getLogger()
 
 def main():
     logger.info("start")
@@ -56,7 +42,7 @@ def main():
     logger.info("finish")
 
 
-@timeout(2)
+@timeout(7)
 def find_urls(root_url, browser, url_story, url_queue):
     try:
         browser.get(root_url)
@@ -68,7 +54,7 @@ def find_urls(root_url, browser, url_story, url_queue):
         leaf_urls = [item.get_attribute('href') for item in list_tags]
         # filter
         leaf_urls = list(filter(lambda x: x is not None
-                                      and is_not_restricted(x, restrictions), leaf_urls))
+                                      and is_not_restricted(x), leaf_urls))
 
         for url in leaf_urls:
             if url not in url_story:
@@ -78,13 +64,6 @@ def find_urls(root_url, browser, url_story, url_queue):
     except:
         logger.error("Descriptor format error")
         return
-
-def is_not_restricted(target, restrictions):
-    for restriction in restrictions:
-        if restriction.match(target):
-            return False
-
-    return True
 
 def save_urls(urls):
     logger.info("saving urls")
