@@ -9,15 +9,15 @@ from TimelimitWindows import call_with_time_limit
 from ErrorFinder import match_errors
 
 target_web_app = \
-    re.compile('^htt(p|ps):localhost:(8080|8443)/war-sportmaster/')
+    re.compile('^htt(p|ps)://localhost:(8080|8443)/war-sportmaster/')
     # re.compile('^htt(p|ps)://new\\.sportmaster\\.ru')
 # url could be google.com/bla-bla/ref=http://new.sportmaster...
 # from ru.sportmaster.lookup.LoggerUtils import getLogger
 
 #root url
-main_url = "http://localhos:8080/war-sportmaster/"
+main_url = "http://localhost:8080/war-sportmaster/"
 logger = getLogger()
-time_limit = 1000
+time_limit = 10
 
 def main():
     logger.info("start")
@@ -66,8 +66,7 @@ def main():
 def find_urls(root_url, browser):
     try:
         browser.get(root_url)
-        if match_errors(browser, logger):
-            return
+        match_errors(browser, logger)
 
         list_tags = browser.find_elements_by_tag_name('a')
     except Exception as e:
