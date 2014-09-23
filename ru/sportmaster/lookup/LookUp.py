@@ -2,7 +2,7 @@ from Queue import Queue
 from selenium import webdriver
 import re
 
-from LoggerUtils import getLogger
+from LoggerUtils import getFileLogger, getStreamLogger
 from restrictions import is_not_restricted
 
 from TimelimitWindows import call_with_time_limit
@@ -16,12 +16,14 @@ target_web_app = \
 #root url
 main_url = "http://new.staging.testim.sportmaster.ru/"
 
-workflow_log = getLogger('workflowLog.log')
-reached_url_log = getLogger('reached_url.log')
+workflow_log = getFileLogger('workflowLog.log')
+reached_url_log = getFileLogger('reached_url.log')
+std_log = getStreamLogger()
+
 time_limit = 30
 
 def main():
-    print("start")
+    std_log.info("start")
     try:
         browser = webdriver.Chrome()
     except:
@@ -34,7 +36,7 @@ def main():
     url_queue.put(main_url)
 
     while not url_queue.empty():
-        print("Iteration #" + len(look_up_story))
+        std_log.info("Iteration #" + str(len(look_up_story)))
         workflow_log.info("Url in story: " + str(len(found_urls)) +
                           ". Url in queue: " + str(url_queue.qsize()))
 
@@ -55,7 +57,7 @@ def main():
         if reached_urls is not None:
             for url in reached_urls:
                 if url not in found_urls:
-                    found_urls.append()
+                    found_urls.append((url, root_url))
                     log_url((url, root_url))
 
         if internal_urls is not None:
@@ -64,7 +66,7 @@ def main():
                     url_queue.put(url)
 
     browser.close()
-    print("finish")
+    std_log.info("finish")
 
 
 def find_urls(root_url, browser):
