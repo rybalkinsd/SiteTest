@@ -27,7 +27,7 @@ def main():
     try:
         browser = webdriver.Chrome()
     except:
-        workflow_log.error("Browser initialize error: " + main_url)
+        workflow_log.error("Browser initialize error: {0}".format(main_url))
         return
 
     found_urls = []
@@ -37,13 +37,12 @@ def main():
 
     while not url_queue.empty():
         std_log.info("Iteration #" + str(len(look_up_story)))
-        workflow_log.info("Url in story: " + str(len(found_urls)) +
-                          ". Url in queue: " + str(url_queue.qsize()))
+        workflow_log.info("Url in story: {0!s}. Url in queue: {1!s}".format(len(found_urls),url_queue.qsize()))
 
         root_url = url_queue.get()
         look_up_story.append(root_url)
 
-        workflow_log.info("Processing url: " + root_url)
+        workflow_log.info("Processing url: {0}".format(root_url))
 
         reached_urls = None
         internal_urls = None
@@ -52,7 +51,7 @@ def main():
             reached_urls, internal_urls = \
                 call_with_time_limit(time_limit, find_urls, (root_url, browser))
         except:
-            workflow_log.error("Time limit expired, url: " + root_url)
+            workflow_log.error("Time limit expired, url: {0}".format(root_url))
 
         if reached_urls is not None:
             for url in reached_urls:
@@ -76,7 +75,7 @@ def find_urls(root_url, browser):
 
         list_tags = browser.find_elements_by_tag_name('a')
     except:
-        workflow_log.error("Can't open url: " + root_url)
+        workflow_log.error("Can't open url: {0}".format(root_url))
         return
 
     try:
@@ -97,7 +96,7 @@ def find_urls(root_url, browser):
 
 
 def log_url(url):
-    reached_url_log.info("@reached " + url[0] + " @from: " + url[1] + "\n")
+    reached_url_log.info("@reached {0[0]} @from: {0[1]}".format(url))
 
 
 if __name__ == "__main__":

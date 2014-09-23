@@ -5,12 +5,12 @@ from selenium import webdriver
 def match_errors(browser, logger):
     list_title = browser.find_elements_by_tag_name('title')
     if match_title(list_title):
-        logger.error(u'Ушли на перерыв in title ' + browser.current_url)
+        logger.error(u'Ушли на перерыв in title {0}'.format(browser.current_url))
         return True
 
     list_h1 = browser.find_elements_by_tag_name('h1')
     if match_h1(list_h1):
-        logger.error(u'Страница не найдена in h1 ' + browser.current_url)
+        logger.error(u'Страница не найдена in h1 {0}'.format(browser.current_url))
         return True
 
 
