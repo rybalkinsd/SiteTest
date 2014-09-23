@@ -30,17 +30,18 @@ def main():
         workflow_log.error("Browser initialize error: {0}".format(main_url))
         return
 
-    found_urls = []
-    look_up_story = []
+    found_urls = set()
+    found_urls_reached = set()
+    look_up_story = set()
     url_queue = Queue()
     url_queue.put(main_url)
 
     while not url_queue.empty():
-        std_log.info("Iteration #" + str(len(look_up_story)))
-        workflow_log.info("Url in story: {0!s}. Url in queue: {1!s}".format(len(found_urls),url_queue.qsize()))
+        std_log.info("Iteration #{0!s}".format(len(look_up_story)))
+        workflow_log.info("Url in story: {0!s}. Url in queue: {1!s}".format(len(found_urls), url_queue.qsize()))
 
         root_url = url_queue.get()
-        look_up_story.append(root_url)
+        look_up_story.add(root_url)
 
         workflow_log.info("Processing url: {0}".format(root_url))
 
@@ -55,13 +56,15 @@ def main():
 
         if reached_urls is not None:
             for url in reached_urls:
-                if url not in found_urls:
-                    found_urls.append((url, root_url))
+                if url not in found_urls_reached:
+                    found_urls.add((url, root_url))
+                    found_urls_reached.add(url)
                     log_url((url, root_url))
 
         if internal_urls is not None:
             for url in internal_urls:
-                if url not in look_up_story:
+                if url not in look_up_story \
+                        and url not in url_queue.queue:
                     url_queue.put(url)
 
     browser.close()
