@@ -3,11 +3,10 @@ import logging
 import sys
 
 
-def getLogger(out_stream=sys.stdout):
+def getLogger(out_stream='info.out'):
     logger = logging.getLogger('LoggerUtils.logger')
     logger.setLevel(logging.DEBUG)
-    handler = logging.FileHandler('/info.log')
-    # handler = logging.StreamHandler(out_stream)
+    handler = logging.FileHandler('info.log')
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)

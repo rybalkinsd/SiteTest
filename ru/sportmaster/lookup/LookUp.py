@@ -15,27 +15,33 @@ target_web_app = \
 
 #root url
 main_url = "http://new.staging.testim.sportmaster.ru/"
-logger = getLogger()
-time_limit = 10
+
+workflow_log = getLogger('workflowLog.log')
+reached_url_log = getLogger('reached_url.log')
+time_limit = 30
 
 def main():
-    logger.info("start")
+    print("start")
     try:
         browser = webdriver.Chrome()
     except:
-        logger.error("Browser initialize error: " + main_url)
+        workflow_log.error("Browser initialize error: " + main_url)
         return
 
-    url_story = []
-
+    found_urls = []
+    look_up_story = []
     url_queue = Queue()
     url_queue.put(main_url)
 
     while not url_queue.empty():
-        logger.info("Url in story: " + str(len(url_story)) + ". Url in queue: " + str(url_queue.qsize()))
+        print("Iteration #" + len(look_up_story))
+        workflow_log.info("Url in story: " + str(len(found_urls)) +
+                          ". Url in queue: " + str(url_queue.qsize()))
 
         root_url = url_queue.get()
-        logger.info("Processing url: " + root_url)
+        look_up_story.append(root_url)
+
+        workflow_log.info("Processing url: " + root_url)
 
         reached_urls = None
         internal_urls = None
@@ -44,32 +50,31 @@ def main():
             reached_urls, internal_urls = \
                 call_with_time_limit(time_limit, find_urls, (root_url, browser))
         except:
-            logger.error("Time limit expired, url: " + root_url)
+            workflow_log.error("Time limit expired, url: " + root_url)
 
         if reached_urls is not None:
             for url in reached_urls:
-                if url not in url_story:
-                    url_story.append((url, root_url))
+                if url not in found_urls:
+                    found_urls.append()
+                    log_url((url, root_url))
 
         if internal_urls is not None:
             for url in internal_urls:
-                if url not in url_queue.queue:
+                if url not in look_up_story:
                     url_queue.put(url)
 
-        save_urls(url_story)
-
     browser.close()
-    logger.info("finish")
+    print("finish")
 
 
 def find_urls(root_url, browser):
     try:
         browser.get(root_url)
-        match_errors(browser, logger)
+        match_errors(browser, workflow_log)
 
         list_tags = browser.find_elements_by_tag_name('a')
     except:
-        logger.error("Can't open url: " + root_url)
+        workflow_log.error("Can't open url: " + root_url)
         return
 
     try:
@@ -85,17 +90,12 @@ def find_urls(root_url, browser):
 
         return reached_urls, internal_urls
     except:
-        logger.error("Descriptor format error")
+        workflow_log.error("Descriptor format error")
         return
 
 
-
-
-def save_urls(urls):
-    logger.info("saving urls")
-    with open('urls.txt', 'w') as file_:
-        for url in urls:
-            file_.write(url[0] +" from: " + url[1] + "\n")
+def log_url(url):
+    reached_url_log.info("@reached " + url[0] + " @from: " + url[1] + "\n")
 
 
 if __name__ == "__main__":
