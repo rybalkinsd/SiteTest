@@ -9,7 +9,7 @@ from TimelimitWindows import call_with_time_limit
 from ErrorFinder import match_errors
 
 target_web_app = \
-    re.compile('^htt(p|ps)://new.staging.testim.sportmaster.ru/')
+    re.compile('^htt(p|ps)://new\\.staging\\.testim\\.sportmaster.ru/')
     # re.compile('^htt(p|ps)://localhost:(8080|8443)/war-sportmaster/')
     # re.compile('^htt(p|ps)://new\\.sportmaster\\.ru')
 
