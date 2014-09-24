@@ -18,6 +18,7 @@ main_url = "http://new.staging.testim.sportmaster.ru/"
 
 workflow_log = getFileLogger('workflowLog.log')
 reached_url_log = getFileLogger('reached_url.log')
+story_log = getFileLogger('story_url.log')
 std_log = getStreamLogger()
 
 time_limit = 30
@@ -40,8 +41,16 @@ def main():
         std_log.info("Iteration #{0!s}".format(len(look_up_story)))
         workflow_log.info("Url in story: {0!s}. Url in queue: {1!s}".format(len(found_urls), url_queue.qsize()))
 
+        # renew browser to prevent fatal error
+        if len(look_up_story) % 50 == 0:
+            std_log.info("Chrome browser renew")
+            workflow_log.info("Chrome browser renew")
+            browser.quit()
+            browser = webdriver.Chrome()
+
         root_url = url_queue.get()
         look_up_story.add(root_url)
+        story_log.info(root_url)
 
         workflow_log.info("Processing url: {0}".format(root_url))
 
@@ -52,6 +61,7 @@ def main():
             reached_urls, internal_urls = \
                 call_with_time_limit(time_limit, find_urls, (root_url, browser))
         except:
+            std_log.error("Time limit expired, url: {0}".format(root_url))
             workflow_log.error("Time limit expired, url: {0}".format(root_url))
 
         if reached_urls is not None:
@@ -67,7 +77,7 @@ def main():
                         and url not in url_queue.queue:
                     url_queue.put(url)
 
-    browser.close()
+    browser.quit()
     std_log.info("finish")
 
 

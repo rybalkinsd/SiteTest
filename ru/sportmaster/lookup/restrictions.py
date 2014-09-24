@@ -10,14 +10,21 @@ import re
 # ]
 
 # exclude all facets and catalog
+# restrictions = [
+#     re.compile('.*login.*'),
+#     re.compile('.*logout.*'),
+#     re.compile('.*continue=.*'),
+#     re.compile('.*facetValues.*'),
+#     re.compile('^htt(p|ps)://new.staging\.testim\.sportmaster\.ru/catalog.*')
+# ]
+
+# exclude all facets
 restrictions = [
     re.compile('.*login.*'),
     re.compile('.*logout.*'),
     re.compile('.*continue=.*'),
-    re.compile('.*facetValues.*'),
-    re.compile('^htt(p|ps)://new.staging\.testim\.sportmaster\.ru/catalog.*')
+    re.compile('.*facetValues.*')
 ]
-
 
 def is_not_restricted(target):
     for restriction in restrictions:
